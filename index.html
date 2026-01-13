@@ -126,6 +126,7 @@ function updateCalculations(){
 // Add rental
 function addRental(){
   const rental={
+    id: Date.now()
     nom: document.getElementById('nom').value,
     cin: document.getElementById('cin').value,
     permis: document.getElementById('permis').value,
@@ -141,7 +142,11 @@ function addRental(){
   localStorage.setItem('rentals', JSON.stringify(rentals));
   renderCards();
   clearInputs();
-
+function deleteRental(id) {
+  if (!confirm("Delete this rental?")) return;
+  rentals = rentals.filter(r => r.id !== id);
+  renderCards();
+}
 }
 
 // Clear inputs
@@ -161,7 +166,24 @@ function renderCards(){
     card.style.padding="22px";
     const overdue=parseDateDMY(rental.dateRetour)<today;
     card.innerHTML=`
-      <h3 style="margin-top:0; color:${overdue?'#d32f2f':'#333'};">${rental.nom}</h3>
+     <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h3 style="margin:0; color:${overdue ? '#d32f2f' : '#333'};">
+      ${rental.nom}
+    </h3>
+    <button 
+      onclick="deleteRental(${rental.id})"
+      style="
+        background:none;
+        border:none;
+        font-size:18px;
+        cursor:pointer;
+        color:#999;
+      "
+      title="Delete"
+    >
+      ❌
+    </button>
+  </div>
       <p><strong>CIN:</strong> ${rental.cin||"-"}</p>
       <p><strong>Permis:</strong> ${rental.permis||"-"}</p>
       <p><strong>Date de Depart:</strong> ${rental.dateDepart}</p>
