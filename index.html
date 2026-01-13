@@ -142,13 +142,14 @@ function addRental(){
   renderCards();
   clearInputs();
   fetch(https://script.google.com/macros/s/AKfycbxDf8bRpGqWV92nOGlDMffMvbu-k_Dbj0nd5hy7IgQZBizi3lufPRoVAMe_lnbog12D/exec, {
-    method: "POST",
-    body: JSON.stringify(rental)
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log("Saved to Google Sheets:", data);
-  })
+  method: "POST",
+  body: JSON.stringify(rental)
+})
+then(response => response.json())
+then(data => {
+  console.log("Saved to Google Sheets:", data);
+})
+.catch(err => console.error("Error saving to Google Sheets:", err));
 }
 
 // Clear inputs
