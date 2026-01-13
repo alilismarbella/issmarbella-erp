@@ -68,36 +68,7 @@ input[type=number]{-moz-appearance:textfield;}
 
 <button onclick="addRental()" style="margin-top:25px; width:100%; padding:16px; background:#333; color:white; border:none; border-radius:14px; cursor:pointer;">Add Rental</button>
 </div>
-<!-- Filters -->
-<div style="background:#f7f7f7; padding:20px; border-radius:16px; margin-bottom:25px;">
-  <h3 style="margin-top:0;">Filters</h3>
 
-  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:15px;">
-    
-    <div>
-      <label>Date from</label>
-      <input type="text" id="filterFrom" placeholder="DD/MM/YYYY" style="width:100%; padding:10px;">
-    </div>
-
-    <div>
-      <label>Date to</label>
-      <input type="text" id="filterTo" placeholder="DD/MM/YYYY" style="width:100%; padding:10px;">
-    </div>
-
-    <div>
-      <label>Sort by</label>
-      <select id="sortBy" style="width:100%; padding:10px;">
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-      </select>
-    </div>
-
-    <div style="align-self:end;">
-      <button onclick="renderCards()" style="width:100%; padding:12px;">Apply</button>
-    </div>
-
-  </div>
-</div>
 <div id="rentalCards" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:25px;"></div>
 
 <script>
@@ -115,10 +86,7 @@ let rentals = JSON.parse(localStorage.getItem('rentals')) || [];
 // Init flatpickr
 flatpickr("#dateDepart",{dateFormat:"d/m/Y",onChange:updateCalculations,allowInput:true});
 flatpickr("#dateRetour",{dateFormat:"d/m/Y",onChange:updateCalculations,allowInput:true});
-flatpickr("#filterFrom", { dateFormat: "d/m/Y", allowInput:true });
-flatpickr("#filterTo", { dateFormat: "d/m/Y", allowInput:true });
 
-  
 // Capitalization
 document.querySelectorAll('.capitalize').forEach(input=>{
   input.addEventListener('input',e=>{
@@ -157,9 +125,7 @@ function updateCalculations(){
 
 // Add rental
 function addRental(){
-  
   const rental={
-    rental.createdAt = Date.now(); // timestamp
     nom: document.getElementById('nom').value,
     cin: document.getElementById('cin').value,
     permis: document.getElementById('permis').value,
@@ -175,7 +141,7 @@ function addRental(){
   localStorage.setItem('rentals', JSON.stringify(rentals));
   renderCards();
   clearInputs();
-  
+
 }
 
 // Clear inputs
@@ -185,60 +151,32 @@ function clearInputs(){
 }
 
 // Render cards
-function renderCards() {
-  rentalCards.innerHTML = '';
-  const today = new Date();
-
-  const fromDate = parseDateDMY(document.getElementById('filterFrom').value);
-  const toDate = parseDateDMY(document.getElementById('filterTo').value);
-  const sortBy = document.getElementById('sortBy').value;
-
-  let filtered = rentals.filter(rental => {
-    const depart = parseDateDMY(rental.dateDepart);
-    if (!depart) return false;
-
-    if (fromDate && depart < fromDate) return false;
-    if (toDate && depart > toDate) return false;
-
-    return true;
-  });
-
-  filtered.sort((a, b) => {
-    return sortBy === 'newest'
-      ? b.createdAt - a.createdAt
-      : a.createdAt - b.createdAt;
-  });
-
-  filtered.forEach(rental => {
-    const card = document.createElement('div');
-
-    const overdue = parseDateDMY(rental.dateRetour) < today;
-
-    card.style.cssText = `
-      background:#fff;
-      border-radius:20px;
-      box-shadow:0 6px 20px rgba(0,0,0,0.08);
-      padding:22px;
-      cursor:pointer;
+function renderCards(){
+  rentalCards.innerHTML='';
+  const today=new Date();
+  rentals.forEach(rental=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.background="#fff"; card.style.borderRadius="20px"; card.style.boxShadow="0 6px 20px rgba(0,0,0,0.08)";
+    card.style.padding="22px";
+    const overdue=parseDateDMY(rental.dateRetour)<today;
+    card.innerHTML=`
+      <h3 style="margin-top:0; color:${overdue?'#d32f2f':'#333'};">${rental.nom}</h3>
+      <p><strong>CIN:</strong> ${rental.cin||"-"}</p>
+      <p><strong>Permis:</strong> ${rental.permis||"-"}</p>
+      <p><strong>Date de Depart:</strong> ${rental.dateDepart}</p>
+      <p><strong>Date de Retour:</strong> ${rental.dateRetour}</p>
+      <p><strong>Duree:</strong> ${rental.duree||"-"}</p>
+      <p><strong>Caution:</strong> ${rental.caution||"-"}</p>
+      <p><strong>Prix / jour:</strong> ${rental.prix||"-"}</p>
+      <p><strong>Total:</strong> ${rental.total||"-"}</p>
     `;
-
-    card.innerHTML = `
-      <h3 style="margin-top:0; color:${overdue ? '#d32f2f' : '#333'};">
-        ${rental.nom}
-      </h3>
-      <p><strong>Depart:</strong> ${rental.dateDepart}</p>
-      <p><strong>Retour:</strong> ${rental.dateRetour}</p>
-      <p><strong>Total:</strong> ${rental.total}</p>
-    `;
-
     rentalCards.appendChild(card);
   });
 }
 
- 
 // Initial render
 renderCards();
-
 </script>
 </body>
 </html>
