@@ -238,21 +238,7 @@ function renderCards() {
  
 // Initial render
 renderCards();
-// Save to Google Sheets (NON-BLOCKING)
-try {
-  fetch(https://script.google.com/macros/s/AKfycbyNjYg_YD8FUr5uWsOwJ1a93ADtnm33OkK2RAq2Mp_erfWkbcMPeiekEs0PmFW8kQhDlg/exec, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(rental)
-  })
-  .then(res => res.text()) // <- DO NOT force JSON
-  .then(txt => console.log("Sheets response:", txt))
-  .catch(err => console.warn("Sheets error:", err));
-} catch (e) {
-  console.warn("Fetch failed:", e);
-}
+
 </script>
 </body>
 </html>
