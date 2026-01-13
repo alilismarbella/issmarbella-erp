@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
 
 <style>
 body{font-family:'Helvetica Neue',Arial,sans-serif; color:#333; margin:0; padding:20px; background:#f7f7f7;}
@@ -27,7 +27,7 @@ input[type=number]{-moz-appearance:textfield;}
 <div style="background:#fafafa; padding:30px; border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.08); margin-bottom:50px;">
 <h3 style="margin-top:0;">Add Rental</h3>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
-  <!-- Inputs -->
+  <!-- Form Inputs -->
   <div style="position:relative;">
     <i class="fa-solid fa-user" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
     <input type="text" id="nom" placeholder="Nom et Prenom" class="capitalize" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;">
@@ -80,21 +80,24 @@ const duree = document.getElementById('duree');
 const prix = document.getElementById('prix');
 const totalForm = document.getElementById('totalForm');
 
+// Replace with your Google Apps Script Web App URL
+const GOOGLE_SHEET_URL = https://docs.google.com/spreadsheets/d/10a4KvwqiwoUoSfnKxNiAen-IzxD6zjAmxIwqFrBK-mo/;
+
 // Rentals array with localStorage
 let rentals = JSON.parse(localStorage.getItem('rentals')) || [];
 
-// Init flatpickr
+// Initialize flatpickr
 flatpickr("#dateDepart",{dateFormat:"d/m/Y",onChange:updateCalculations,allowInput:true});
 flatpickr("#dateRetour",{dateFormat:"d/m/Y",onChange:updateCalculations,allowInput:true});
 
-// Capitalization
+// Capitalize
 document.querySelectorAll('.capitalize').forEach(input=>{
   input.addEventListener('input',e=>{
     e.target.value=e.target.value.split(' ').map(w=>w? w.charAt(0).toUpperCase()+w.slice(1):'').join(' ');
   });
 });
 
-// Parse date DD/MM/YYYY
+// Parse DD/MM/YYYY
 function parseDateDMY(str){
   if(!str) return null;
   const parts=str.split('/');
@@ -102,7 +105,7 @@ function parseDateDMY(str){
   return new Date(parseInt(parts[2],10),parseInt(parts[1],10)-1,parseInt(parts[0],10));
 }
 
-// Date/duration/total
+// Calculate duration and total
 function updateCalculations(){
   const start=parseDateDMY(dateDepart.value);
   let end=parseDateDMY(dateRetour.value);
@@ -136,11 +139,26 @@ function addRental(){
     prix: prix.value,
     total: totalForm.innerText
   };
-  if(!rental.nom || !rental.dateDepart){ alert("Veuillez remplir au moins le nom et la date de départ."); return; }
+
+  if(!rental.nom || !rental.dateDepart){
+    alert("Veuillez remplir au moins le nom et la date de départ.");
+    return;
+  }
+
+  // Save locally
   rentals.push(rental);
   localStorage.setItem('rentals', JSON.stringify(rentals));
   renderCards();
   clearInputs();
+
+  // Send to Google Sheets
+  fetch(GOOGLE_SHEET_URL,{
+    method: "POST",
+    body: JSON.stringify(rental)
+  })
+  .then(res=>res.json())
+  .then(data=>console.log("Saved to Google Sheets:",data))
+  .catch(err=>console.error("Error saving to Google Sheets:",err));
 }
 
 // Clear inputs
@@ -179,3 +197,4 @@ renderCards();
 </script>
 </body>
 </html>
+
