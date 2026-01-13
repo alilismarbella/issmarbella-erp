@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Rental ERP</title>
+
+<!-- Flatpickr CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+body{font-family:'Helvetica Neue',Arial,sans-serif; color:#333; margin:0; padding:20px; background:#f7f7f7;}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+.card:hover{transform:translateY(-5px); box-shadow:0 12px 30px rgba(0,0,0,0.12);}
+</style>
+</head>
+<body>
+
+<div style="max-width:900px; margin:auto;">
+<h2 style="text-align:center; margin-bottom:40px;">Car Rental Manager</h2>
+
+<div style="background:#fafafa; padding:30px; border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.08); margin-bottom:50px;">
+<h3 style="margin-top:0;">Add Rental</h3>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
+  <!-- Inputs -->
+  <div style="position:relative;">
+    <i class="fa-solid fa-user" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="text" id="nom" placeholder="Nom et Prenom" class="capitalize" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-id-card" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="text" id="cin" placeholder="CIN" class="capitalize" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-car-side" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="text" id="permis" placeholder="Numero de Permis" class="capitalize" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-calendar-days" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="text" id="dateDepart" placeholder="DD/MM/YYYY" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-calendar-days" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="text" id="dateRetour" placeholder="DD/MM/YYYY" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-clock" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="number" id="duree" placeholder="Duree (jours)" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-hand-holding-dollar" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="number" id="caution" placeholder="Caution" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+  </div>
+  <div style="position:relative;">
+    <i class="fa-solid fa-money-bill-wave" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#888;"></i>
+    <input type="number" id="prix" placeholder="Prix / jour" style="padding:14px 14px 14px 36px; border-radius:12px; border:1px solid #ddd; width:100%;" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+  </div>
+</div>
+
+<div style="margin-top:20px;">
+  <strong>Total:</strong> <span id="totalForm">-</span>
+</div>
+
+<button onclick="addRental()" style="margin-top:25px; width:100%; padding:16px; background:#333; color:white; border:none; border-radius:14px; cursor:pointer;">Add Rental</button>
+</div>
+
+<div id="rentalCards" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:25px;"></div>
+
+<script>
+// Elements
+const rentalCards = document.getElementById('rentalCards');
+const dateDepart = document.getElementById('dateDepart');
+const dateRetour = document.getElementById('dateRetour');
+const duree = document.getElementById('duree');
+const prix = document.getElementById('prix');
+const totalForm = document.getElementById('totalForm');
+
+// Rentals array with localStorage
+let rentals = JSON.parse(localStorage.getItem('rentals')) || [];
+
+// Init flatpickr
+flatpickr("#dateDepart",{dateFormat:"d/m/Y",onChange:updateCalculations,allowInput:true});
+flatpickr("#dateRetour",{dateFormat:"d/m/Y",onChange:updateCalculations,allowInput:true});
+
+// Capitalization
+document.querySelectorAll('.capitalize').forEach(input=>{
+  input.addEventListener('input',e=>{
+    e.target.value=e.target.value.split(' ').map(w=>w? w.charAt(0).toUpperCase()+w.slice(1):'').join(' ');
+  });
+});
+
+// Parse date DD/MM/YYYY
+function parseDateDMY(str){
+  if(!str) return null;
+  const parts=str.split('/');
+  if(parts.length!==3) return null;
+  return new Date(parseInt(parts[2],10),parseInt(parts[1],10)-1,parseInt(parts[0],10));
+}
+
+// Date/duration/total
+function updateCalculations(){
+  const start=parseDateDMY(dateDepart.value);
+  let end=parseDateDMY(dateRetour.value);
+  const durationVal=parseInt(duree.value);
+
+  if(!start || isNaN(start.getTime())) { totalForm.innerText="-"; return; }
+
+  if(!isNaN(durationVal)&&durationVal>0){
+    const newEnd=new Date(start);
+    newEnd.setDate(start.getDate()+durationVal);
+    dateRetour._flatpickr.setDate(newEnd);
+    end=newEnd;
+  } else if(end && !isNaN(end.getTime())){
+    duree.value = Math.ceil((end-start)/(1000*60*60*24));
+  }
+
+  totalForm.innerText = (duree.value && prix.value) ? parseInt(duree.value)*parseFloat(prix.value) : "-";
+}
+[duree,prix].forEach(el=>el.addEventListener('input',updateCalculations));
+
+// Add rental
+function addRental(){
+  const rental={
+    nom: document.getElementById('nom').value,
+    cin: document.getElementById('cin').value,
+    permis: document.getElementById('permis').value,
+    dateDepart: dateDepart.value,
+    dateRetour: dateRetour.value,
+    duree: duree.value,
+    caution: document.getElementById('caution').value,
+    prix: prix.value,
+    total: totalForm.innerText
+  };
+  if(!rental.nom || !rental.dateDepart){ alert("Veuillez remplir au moins le nom et la date de départ."); return; }
+  rentals.push(rental);
+  localStorage.setItem('rentals', JSON.stringify(rentals));
+  renderCards();
+  clearInputs();
+}
+
+// Clear inputs
+function clearInputs(){
+  ['nom','cin','permis','dateDepart','dateRetour','duree','caution','prix'].forEach(id=>document.getElementById(id).value='');
+  totalForm.innerText="-";
+}
+
+// Render cards
+function renderCards(){
+  rentalCards.innerHTML='';
+  const today=new Date();
+  rentals.forEach(rental=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.background="#fff"; card.style.borderRadius="20px"; card.style.boxShadow="0 6px 20px rgba(0,0,0,0.08)";
+    card.style.padding="22px";
+    const overdue=parseDateDMY(rental.dateRetour)<today;
+    card.innerHTML=`
+      <h3 style="margin-top:0; color:${overdue?'#d32f2f':'#333'};">${rental.nom}</h3>
+      <p><strong>CIN:</strong> ${rental.cin||"-"}</p>
+      <p><strong>Permis:</strong> ${rental.permis||"-"}</p>
+      <p><strong>Date de Depart:</strong> ${rental.dateDepart}</p>
+      <p><strong>Date de Retour:</strong> ${rental.dateRetour}</p>
+      <p><strong>Duree:</strong> ${rental.duree||"-"}</p>
+      <p><strong>Caution:</strong> ${rental.caution||"-"}</p>
+      <p><strong>Prix / jour:</strong> ${rental.prix||"-"}</p>
+      <p><strong>Total:</strong> ${rental.total||"-"}</p>
+    `;
+    rentalCards.appendChild(card);
+  });
+}
+
+// Initial render
+renderCards();
+</script>
+</body>
+</html>
