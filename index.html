@@ -126,7 +126,6 @@ function updateCalculations(){
 // Add rental
 function addRental(){
   const rental={
-    id: Date.now()
     nom: document.getElementById('nom').value,
     cin: document.getElementById('cin').value,
     permis: document.getElementById('permis').value,
@@ -142,11 +141,16 @@ function addRental(){
   localStorage.setItem('rentals', JSON.stringify(rentals));
   renderCards();
   clearInputs();
-function deleteRental(id) {
-  if (!confirm("Delete this rental?")) return;
-  rentals = rentals.filter(r => r.id !== id);
-  renderCards();
-}
+  
+  fetch(https://script.google.com/macros/s/AKfycbwWuZTYrqKsZ8dlAnZYYtf7W23JCaqdL5PtRkThoVSKQJnUbTzRi5YIxiFYvGKbjxOhwA/exec, {
+  method: "POST",
+  body: JSON.stringify(rental)
+})
+.then(response => response.json())
+.then(data => {
+  console.log("Saved to Google Sheets:", data);
+})
+.catch(err => console.error("Error saving to Google Sheets:", err));
 }
 
 // Clear inputs
@@ -165,8 +169,7 @@ function renderCards(){
     card.style.background="#fff"; card.style.borderRadius="20px"; card.style.boxShadow="0 6px 20px rgba(0,0,0,0.08)";
     card.style.padding="22px";
     const overdue=parseDateDMY(rental.dateRetour)<today;
-    card.innerHTML=`
-     <div style="display:flex; justify-content:space-between; align-items:center;">
+    card.innerHTML=`<div style="display:flex; justify-content:space-between; align-items:center;">
     <h3 style="margin:0; color:${overdue ? '#d32f2f' : '#333'};">
       ${rental.nom}
     </h3>
@@ -184,6 +187,7 @@ function renderCards(){
       ❌
     </button>
   </div>
+      <h3 style="margin-top:0; color:${overdue?'#d32f2f':'#333'};">${rental.nom}</h3>
       <p><strong>CIN:</strong> ${rental.cin||"-"}</p>
       <p><strong>Permis:</strong> ${rental.permis||"-"}</p>
       <p><strong>Date de Depart:</strong> ${rental.dateDepart}</p>
