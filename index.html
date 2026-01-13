@@ -145,8 +145,8 @@ function addRental(){
   method: "POST",
   body: JSON.stringify(rental)
 })
-then(response => response.json())
-then(data => {
+.then(response => response.json())
+.then(data => {
   console.log("Saved to Google Sheets:", data);
 })
 .catch(err => console.error("Error saving to Google Sheets:", err));
