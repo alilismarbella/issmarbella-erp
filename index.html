@@ -148,6 +148,7 @@ function addRental(){
   if(!rental.nom || !rental.dateDepart){ alert("Veuillez remplir au moins le nom et la date de départ."); return; }
   rentals.push(rental);
   localStorage.setItem('rentals', JSON.stringify(rentals));
+  sendToGoogleSheets(rental);
   renderCards();
   clearInputs();
 
