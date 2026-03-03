@@ -4,64 +4,103 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Uber Driver Net Fare Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #b2f0ff, #66d9ff, #3399ff);
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 40px;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+      color: white;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 25px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      letter-spacing: 0.5px;
     }
 
     .input-group {
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     label {
-      font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+      opacity: 0.9;
     }
 
     input {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
       font-size: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: 0.3s;
+    }
+
+    input:focus {
+      transform: scale(1.03);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
     }
 
     .results {
-      margin-top: 20px;
+      margin-top: 25px;
       font-size: 14px;
     }
 
     .results div {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      opacity: 0.95;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.3);
+      margin: 15px 0;
     }
 
     .final {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 15px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      margin-top: 25px;
+      opacity: 0.7;
     }
   </style>
 </head>
@@ -72,17 +111,17 @@
 
     <div class="input-group">
       <label>Total Earnings (Including Tips)</label>
-      <input type="number" id="total" placeholder="Enter total earnings" oninput="calculate()" />
+      <input type="number" id="total" placeholder="Enter total earnings" oninput="calculate()">
     </div>
 
     <div class="input-group">
       <label>Tips Amount</label>
-      <input type="number" id="tips" placeholder="Enter tips" oninput="calculate()" />
+      <input type="number" id="tips" placeholder="Enter tips" oninput="calculate()">
     </div>
 
     <div class="input-group">
       <label>Diesel Cost</label>
-      <input type="number" id="diesel" placeholder="Enter diesel cost" oninput="calculate()" />
+      <input type="number" id="diesel" placeholder="Enter diesel cost" oninput="calculate()">
     </div>
 
     <div class="results">
@@ -99,28 +138,34 @@
         <span id="split">€0.00</span>
       </div>
 
+      <div class="divider"></div>
+
       <div class="final">
         <span>Final Net Fare</span>
         <span id="net">€0.00</span>
       </div>
     </div>
+
+    <div class="footer">
+      Professional Driver Earnings Tool
+    </div>
   </div>
 
   <script>
     function calculate() {
-      const total = parseFloat(document.getElementById("total").value) || 0;
-      const tips = parseFloat(document.getElementById("tips").value) || 0;
-      const diesel = parseFloat(document.getElementById("diesel").value) || 0;
+      const total = parseFloat(document.getElementById('total').value) || 0;
+      const tips = parseFloat(document.getElementById('tips').value) || 0;
+      const diesel = parseFloat(document.getElementById('diesel').value) || 0;
 
       const tax = total * 0.06;
       const afterTax = total - tax;
       const splitAmount = (afterTax - diesel) / 2;
       const netFare = splitAmount + tips;
 
-      document.getElementById("tax").innerText = "€" + tax.toFixed(2);
-      document.getElementById("afterTax").innerText = "€" + afterTax.toFixed(2);
-      document.getElementById("split").innerText = "€" + splitAmount.toFixed(2);
-      document.getElementById("net").innerText = "€" + netFare.toFixed(2);
+      document.getElementById('tax').innerText = '€' + tax.toFixed(2);
+      document.getElementById('afterTax').innerText = '€' + afterTax.toFixed(2);
+      document.getElementById('split').innerText = '€' + splitAmount.toFixed(2);
+      document.getElementById('net').innerText = '€' + netFare.toFixed(2);
     }
   </script>
 
