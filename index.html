@@ -1,55 +1,103 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Uber Net Fare Calculator</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    .box { margin-bottom: 10px; }
-    input { padding: 5px; width: 200px; }
-    button { padding: 8px 15px; margin-top: 10px; }
-    .result { margin-top: 20px; font-weight: bold; }
-  </style>
-</head>
-<body>
+import React, { useState, useMemo } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { motion } from "framer-motion";
 
-<h2>Uber Driver Net Fare Calculator</h2>
+export default function UberNetFareCalculator() {
+  const [totalEarnings, setTotalEarnings] = useState("");
+  const [tips, setTips] = useState("");
+  const [diesel, setDiesel] = useState("");
 
-<div class="box">
-  <label>Total Earnings (Including Tips):</label><br>
-  <input type="number" id="totalEarnings">
-</div>
+  const calculations = useMemo(() => {
+    const total = parseFloat(totalEarnings) || 0;
+    const tipsAmount = parseFloat(tips) || 0;
+    const dieselCost = parseFloat(diesel) || 0;
 
-<div class="box">
-  <label>Tips Amount:</label><br>
-  <input type="number" id="tips">
-</div>
+    const tax = total * 0.06;
+    const afterTax = total - tax;
+    const splitAmount = (afterTax - dieselCost) / 2;
+    const netFare = splitAmount + tipsAmount;
 
-<div class="box">
-  <label>Diesel Cost:</label><br>
-  <input type="number" id="diesel">
-</div>
+    return {
+      tax,
+      afterTax,
+      splitAmount,
+      netFare,
+    };
+  }, [totalEarnings, tips, diesel]);
 
-<button onclick="calculate()">Calculate</button>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-cyan-200 via-sky-300 to-blue-400 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="rounded-2xl shadow-xl">
+          <CardContent className="p-6 space-y-6">
+            <h1 className="text-2xl font-bold text-center">
+              Uber Driver Net Fare Calculator
+            </h1>
 
-<div class="result" id="output"></div>
+            <div className="space-y-2">
+              <Label>Total Earnings (Including Tips)</Label>
+              <Input
+                type="number"
+                placeholder="Enter total earnings"
+                value={totalEarnings}
+                onChange={(e) => setTotalEarnings(e.target.value)}
+              />
+            </div>
 
-<script>
-function calculate() {
-  let total = parseFloat(document.getElementById("totalEarnings").value) || 0;
-  let tips = parseFloat(document.getElementById("tips").value) || 0;
-  let diesel = parseFloat(document.getElementById("diesel").value) || 0;
+            <div className="space-y-2">
+              <Label>Tips Amount</Label>
+              <Input
+                type="number"
+                placeholder="Enter tips"
+                value={tips}
+                onChange={(e) => setTips(e.target.value)}
+              />
+            </div>
 
-  let tax = total * 0.06;
-  let afterTax = total - tax;
+            <div className="space-y-2">
+              <Label>Diesel Cost</Label>
+              <Input
+                type="number"
+                placeholder="Enter diesel cost"
+                value={diesel}
+                onChange={(e) => setDiesel(e.target.value)}
+              />
+            </div>
 
-  let netFare = ((afterTax - diesel) / 2) + tips;
+            <Separator />
 
-  document.getElementById("output").innerHTML =
-    "6% Tax: $" + tax.toFixed(2) + "<br>" +
-    "After Tax: $" + afterTax.toFixed(2) + "<br>" +
-    "Final Net Fare: $" + netFare.toFixed(2);
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>6% Tax</span>
+                <span>€{calculations.tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>After Tax</span>
+                <span>€{calculations.afterTax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Split Amount (After Diesel ÷ 2)</span>
+                <span>€{calculations.splitAmount.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex justify-between text-lg font-semibold">
+              <span>Final Net Fare</span>
+              <span>€{calculations.netFare.toFixed(2)}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
 }
-</script>
-
-</body>
-</html>
