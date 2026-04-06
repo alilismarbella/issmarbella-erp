@@ -160,7 +160,7 @@
       const tax = total * 0.06;
       const afterTax = total - tax;
       const splitAmount = (afterTax - diesel) / 2;
-      const netFare = splitAmount + tips;
+      const netFare = splitAmount + (diesel / 2) + tips;
 
       document.getElementById('tax').innerText = '€' + tax.toFixed(2);
       document.getElementById('afterTax').innerText = '€' + afterTax.toFixed(2);
